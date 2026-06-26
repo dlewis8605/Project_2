@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AURA - Submit a Curated UX/UI Asset">
+  <title>AURA — Submit Asset</title>
+  
+  <!-- PWA Manifest & Theme -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#a855f7">
+  
+  <!-- Bootstrap 4 & FontAwesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Offline Banner -->
+  <div id="offline-banner" class="offline-banner">
+    <i class="fas fa-wifi-slashmr-2"></i> You are currently offline. Running AURA in offline-only mode.
+  </div>
+
+  <div id="app">
+    <!-- Glowing Background Orbs -->
+    <div class="orb orb-primary"></div>
+    <div class="orb orb-secondary"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-glass">
+      <div class="container">
+        <a class="navbar-brand navbar-brand-glow" href="/index.html">AURA</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom" href="/index.html"><i class="fas fa-th-large mr-1"></i> Catalog</a>
+            </li>
+            <li class="nav-item" v-if="user">
+              <a class="nav-link nav-link-custom" href="/favorites.html"><i class="fas fa-heart mr-1"></i> Favorites</a>
+            </li>
+          </ul>
+          
+          <div class="navbar-nav ml-auto align-items-center">
+            <a href="/submit.html" class="nav-btn-action active mr-3" v-if="user">
+              <i class="fas fa-plus mr-1"></i> Submit Asset
+            </a>
+            
+            <span class="text-white-50 mr-3" v-if="user">
+              Hi, <strong class="text-light">{{ user.username }}</strong>
+            </span>
+            
+            <button @click="logoutUser" class="nav-link nav-link-custom btn btn-link" v-if="user" style="text-decoration: none;">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container py-5 my-3">
+      <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+          
+          <!-- Access Control Notice -->
+          <div v-if="!user" class="glass-panel text-center py-5">
+            <i class="fas fa-lock fa-3x text-muted mb-3"></i>
+            <h4 class="text-light">Access Denied</h4>
+            <p class="text-muted">You must be logged in to access the asset submission portal. Redirecting you to login...</p>
+            <a href="/login.html" class="btn nav-btn-action mt-2">Go to Login</a>
+          </div>
+
+          <!-- Submission Portal Panel -->
+          <div v-else class="glass-panel">
+            <h2 class="mb-4 text-light"><i class="fas fa-cloud-upload-alt gradient-text mr-2"></i> Submit <span class="gradient-text">Design Asset</span></h2>
+            
+            <!-- Real-time Alerts -->
+            <div v-if="submitError" class="alert alert-glass mb-4" role="alert">
+              <i class="fas fa-exclamation-triangle mr-2"></i> {{ submitError }}
+            </div>
+            
+            <div v-if="submitSuccess" class="alert alert-glass-success mb-4" role="alert">
+              <i class="fas fa-check-circle mr-2"></i> Asset submitted successfully! Redirecting to catalog...
+            </div>
+
+            <!-- Submission Form -->
+            <form @submit="submitAsset">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-4">
+                    <label for="title" class="form-glass-label">Asset Title</label>
+                    <input type="text" id="title" v-model="newAsset.title" class="form-control form-glass-input" required placeholder="e.g. Frosty Glass Card">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-4">
+                    <label for="category" class="form-glass-label">Category</label>
+                    <select id="category" v-model="newAsset.category" class="form-control form-glass-input" required style="height: auto;">
+                      <option value="css">CSS Component</option>
+                      <option value="sass">SASS Mixin</option>
+                      <option value="palette">Color Palette</option>
+                      <option value="svg">SVG Icon</option>
+                      <option value="other">Miscellaneous</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group mb-4">
+                <label for="description" class="form-glass-label">Asset Description</label>
+                <input type="text" id="description" v-model="newAsset.description" class="form-control form-glass-input" required placeholder="Describe what the asset does, design attributes, etc.">
+              </div>
+
+              <div class="form-group mb-4">
+                <label for="code" class="form-glass-label">Source Code / Contents</label>
+                <textarea id="code" v-model="newAsset.code" class="form-control form-glass-input" rows="8" required placeholder="Paste HTML, CSS, SASS mixins, SVG code block, or hex palettes..." style="font-family: var(--font-mono); font-size: 0.85rem;"></textarea>
+                <small class="form-text text-muted mt-2">Make sure your asset code is self-contained and clean.</small>
+              </div>
+
+              <div class="form-group mb-4">
+                <label for="tags" class="form-glass-label">Tags (comma-separated)</label>
+                <input type="text" id="tags" v-model="newAsset.tags" class="form-control form-glass-input" placeholder="e.g. glassmorphism, card, button, glowing">
+              </div>
+
+              <div class="d-flex justify-content-end align-items-center mt-4">
+                <a href="/index.html" class="btn btn-outline-secondary mr-3 text-white">Cancel</a>
+                <button type="submit" class="btn nav-btn-action px-4 py-2" style="width: auto;">Publish Asset</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notification Banner -->
+    <div class="copy-toast" :class="{ show: showToast }">
+      <i class="fas fa-check-circle"></i> {{ toastMessage }}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+      <p class="text-muted m-0">AURA Catalog &copy; 2026. Built by Darell Lewis for Web Development II.</p>
+    </footer>
+  </div>
+
+  <!-- jQuery, Popper, Bootstrap, Vue.js (CDN Integrations) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  
+  <!-- PWA Logic Registration -->
+  <script src="/js/pwa.js"></script>
+  
+  <!-- Main Frontend Vue Logic -->
+  <script src="/js/app.js"></script>
+
+</body>
+</html>
