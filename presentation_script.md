@@ -82,7 +82,14 @@ This script accompanies the generated PowerPoint presentation (`presentation.ppt
 3. Click **Favorites** in the navbar.
 4. Show that only your bookmarked assets are listed here. Click the heart icon again to remove one and see it disappear from the grid reactively.
 
-### Action 5: Demonstrate PWA & Offline Access
+### Action 5: Delete Submitted Asset (Authenticated Owner Only)
+1. Stay on the main catalog page (or go back to the catalog if on favorites).
+2. Point out that for your submitted asset ("Glowing Glass Button"), there is a red **Trash Can** icon next to the "View Details" button. Explain to the instructor that this icon *only* appears on assets you created, verifying secure ownership controls.
+3. Click the **Trash Can** icon.
+4. Click **OK** on the browser confirmation dialog.
+5. Watch the asset immediately vanish from the grid. Explain that this sends a DELETE API request to the backend, removing the document from MongoDB and sanitizing other users' favorites lists to prevent broken references.
+
+### Action 6: Demonstrate PWA & Offline Access
 1. Open the browser's Developer Tools (F12), click on the **Application** (or **Audit/Network**) tab.
 2. Under **Service Workers**, point out that `/sw.js` is registered and active.
 3. Simulating Offline:
@@ -90,6 +97,7 @@ This script accompanies the generated PowerPoint presentation (`presentation.ppt
    * **Option B (Server):** Stop your Node terminal server (Ctrl+C).
 4. Refresh the page. Show that the page loads instantly from the service worker cache, and a glowing yellow banner appears at the top: *"You are currently offline. Running AURA in offline-only mode."*
 5. Demonstrate that you can still search the catalog and inspect previously loaded assets!
+
 
 ---
 

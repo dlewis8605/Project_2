@@ -419,7 +419,8 @@ def create_presentation():
         ("Step 2: Guest Experience", "Browse the catalog dashboard, search for keyword '#glassmorphism', toggle categories (CSS, SASS), copy source codes, and observe the download count incrementing."),
         ("Step 3: User Authentication", "Navigate to registration, enter credentials, and create an account. Watch the UI immediately update the navbar options and greet the user."),
         ("Step 4: Contribute to Catalog", "Go to the Asset Submission form, enter details for a custom neon glass-button styling, input tags, and hit Publish. View it load immediately at the top of the home page."),
-        ("Step 5: Curate Dashboard & Offline Mode", "Favorite the new asset, visit the Favorites dashboard tab, then simulate network disconnection. Observe the offline warning and confirm that you can still browse previously fetched assets.")
+        ("Step 5: Secure Deletion Flow", "Confirm that only the author gets a red Trash icon on their own assets. Click delete, accept the confirm alert, and watch the card disappear as the database cleans it up."),
+        ("Step 6: Curate Dashboard & Offline Mode", "Favorite other assets to populate your dashboard, then simulate offline mode in DevTools to confirm cached assets load instantly without network connection.")
     ]
     
     first = True

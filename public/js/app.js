@@ -285,6 +285,26 @@ new Vue({
       } catch (err) {
         console.error('Error updating download statistics:', err);
       }
+    },
+    
+    async deleteAsset(asset) {
+      if (!confirm(`Are you sure you want to delete the asset "${asset.title}"?`)) {
+        return;
+      }
+      try {
+        const response = await fetch(`/api/assets/${asset._id}`, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        if (response.ok) {
+          this.triggerToast('Asset deleted successfully');
+          this.assets = this.assets.filter(a => a._id !== asset._id);
+        } else {
+          throw new Error(data.message || 'Deletion failed');
+        }
+      } catch (err) {
+        this.triggerToast(`Error: ${err.message}`);
+      }
     }
   },
   

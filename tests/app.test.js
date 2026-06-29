@@ -177,4 +177,65 @@ describe('Catalog API Routing & Authorization Tests', () => {
     expect(res.status).toBe(401);
     expect(res.body.message).toContain('Unauthorized');
   });
+
+  test('DELETE /api/assets/:id should return 401 Unauthorized for guests', async () => {
+    const assetId = new mongoose.Types.ObjectId();
+    const res = await request(app).delete(`/api/assets/${assetId}`);
+    expect(res.status).toBe(401);
+  });
+
+  test('DELETE /api/assets/:id should return 403 Forbidden for non-owners', async () => {
+    const agentOwner = request.agent(app);
+    const registerA = await agentOwner.post('/api/auth/register').send({
+      username: 'userowner',
+      email: 'owner@test.com',
+      password: 'password123'
+    });
+    expect(registerA.status).toBe(201);
+
+    const submitAsset = await agentOwner.post('/api/assets').send({
+      title: 'Owner Button',
+      description: 'Owned asset',
+      category: 'css',
+      code: '.btn {}'
+    });
+    expect(submitAsset.status).toBe(201);
+    const assetId = submitAsset.body._id;
+
+    const agentOther = request.agent(app);
+    await agentOther.post('/api/auth/register').send({
+      username: 'userother',
+      email: 'other@test.com',
+      password: 'password123'
+    });
+
+    const res = await agentOther.delete(`/api/assets/${assetId}`);
+    expect(res.status).toBe(403);
+    expect(res.body.message).toContain('Forbidden');
+  });
+
+  test('DELETE /api/assets/:id should delete successfully for owners', async () => {
+    const agentOwner = request.agent(app);
+    await agentOwner.post('/api/auth/register').send({
+      username: 'ownerdelete',
+      email: 'ownerdelete@test.com',
+      password: 'password123'
+    });
+
+    const submitAsset = await agentOwner.post('/api/assets').send({
+      title: 'Deletable Asset',
+      description: 'Will be deleted',
+      category: 'css',
+      code: '.btn {}'
+    });
+    const assetId = submitAsset.body._id;
+
+    const res = await agentOwner.delete(`/api/assets/${assetId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+
+    const dbAsset = await Asset.findById(assetId);
+    expect(dbAsset).toBeNull();
+  });
 });
+

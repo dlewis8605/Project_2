@@ -158,4 +158,34 @@ router.get('/favorites', requireAuth, async (req, res) => {
   }
 });
 
+// @route   DELETE /api/assets/:id
+// @desc    Delete an asset (authenticated creator only)
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const assetId = req.params.id;
+    const userId = req.session.userId;
+
+    const asset = await Asset.findById(assetId);
+    if (!asset) {
+      return res.status(404).json({ message: 'Asset not found' });
+    }
+
+    // Verify ownership: ensure the logged-in user is the creator of the asset
+    if (asset.creator.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Forbidden. You can only delete assets you submitted.' });
+    }
+
+    // Delete the asset from the Asset collection
+    await Asset.findByIdAndDelete(assetId);
+
+    // Clean up favorites reference from all users
+    await User.updateMany({}, { $pull: { favorites: assetId } });
+
+    res.json({ success: true, message: 'Asset deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting asset', error: error.message });
+  }
+});
+
 module.exports = router;
+
