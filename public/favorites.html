@@ -134,7 +134,7 @@
                     <span>source code</span>
                     <i class="far fa-copy" style="cursor: pointer;" @click="copyCode(asset)" title="Copy Code"></i>
                   </div>
-                  <pre class="code-editor-pre"><code>{{ asset.code.substring(0, 150) }}{{ asset.code.length > 150 ? '...' : '' }}</code></pre>
+                  <pre class="code-editor-pre"><code>{{ decodeHtml(asset.code).substring(0, 150) }}{{ asset.code.length > 150 ? '...' : '' }}</code></pre>
                   <div class="copy-badge-overlay" @click="copyCode(asset)">
                     <i class="far fa-copy mr-1"></i> Copy
                   </div>
@@ -186,7 +186,7 @@
             <h6 class="text-muted uppercase mb-2"><i class="fas fa-play mr-1"></i> Visual Render Preview</h6>
             <div class="component-demo-sandbox mb-4">
               <!-- Inline CSS injector sandbox demo -->
-              <div v-if="selectedAsset.category === 'css' || selectedAsset.category === 'svg'" v-html="selectedAsset.code"></div>
+              <div v-if="selectedAsset.category === 'css' || selectedAsset.category === 'svg'" v-html="decodeHtml(selectedAsset.code)"></div>
               <div v-else-if="selectedAsset.category === 'palette'" class="w-100">
                 <div class="d-flex justify-content-around rounded p-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05)">
                   <div class="text-center">
@@ -207,7 +207,7 @@
               </button>
             </div>
             <div class="code-preview-box" style="max-height: 400px;">
-              <pre class="code-editor-pre" style="white-space: pre-wrap; word-break: break-all;"><code>{{ selectedAsset.code }}</code></pre>
+              <pre class="code-editor-pre" style="white-space: pre-wrap; word-break: break-all;"><code>{{ decodeHtml(selectedAsset.code) }}</code></pre>
             </div>
             
             <div class="mt-3">

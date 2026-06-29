@@ -218,6 +218,14 @@ new Vue({
       }
     },
     
+    // Helper to decode HTML entities in the client
+    decodeHtml(html) {
+      if (!html) return '';
+      const txt = document.createElement("textarea");
+      txt.innerHTML = html;
+      return txt.value;
+    },
+
     // 5. Interactive Details & Sandbox Actions
     viewAssetDetails(asset) {
       this.selectedAsset = asset;
@@ -227,7 +235,7 @@ new Vue({
     
     // Copy CSS/HTML Code block to Clipboard
     copyCode(asset) {
-      const codeToCopy = asset.code;
+      const codeToCopy = this.decodeHtml(asset.code);
       navigator.clipboard.writeText(codeToCopy)
         .then(() => {
           this.triggerToast('Code copied to clipboard!');

@@ -3,6 +3,19 @@ const router = express.Router();
 const Asset = require('../models/Asset');
 const User = require('../models/User');
 
+// Helper to decode HTML entities escaped by xss-clean for source code blocks
+const decodeHtml = (str) => {
+  if (!str) return str;
+  return str
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&amp;/g, '&');
+};
+
+
 // Middleware to protect routes that require authentication
 const requireAuth = (req, res, next) => {
   if (!req.session.userId) {
@@ -70,7 +83,7 @@ router.post('/', requireAuth, async (req, res) => {
       title: title.trim(),
       description: description.trim(),
       category,
-      code,
+      code: decodeHtml(code),
       tags: tagsArray,
       creator: req.session.userId,
       creatorName: req.session.username
